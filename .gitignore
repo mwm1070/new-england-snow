@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------
+# Data. Never committed. The pipeline re-downloads it from NCEI on every run.
+# Once a multi-hundred-MB .dly file is in history, deleting it does not fix it.
+# ---------------------------------------------------------------------------
+data/
+*.dly
+*.dly.gz
+*.parquet
+*.csv
+
+# Build artifacts / generated site
+build/
+_site/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
