@@ -199,6 +199,7 @@ def build(repo_url: str) -> int:
         "PRECIP_E": plain(mech["precip"]["early"]),
         "PRECIP_L": plain(mech["precip"]["late"]),
         "PRECIP_DIFF": signed(mech["precip"]["diff"]),
+        "PRECIP_ABS": plain(abs(mech["precip"]["diff"])),
         "TEMP_E": plain(mech["temp"]["early"], 2),
         "TEMP_L": plain(mech["temp"]["late"], 2),
         # artefact
