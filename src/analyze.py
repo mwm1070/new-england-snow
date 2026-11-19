@@ -232,6 +232,7 @@ def regional_analysis(usable: pd.DataFrame, min_baseline: int, min_stations: int
 
     return {
         "n_stations": int(len(base)),
+        "station_ids": sorted(base.index.tolist()),
         "baseline_level_in": baseline_level,
         "early_mean_anomaly": float(early.mean()),
         "late_mean_anomaly": float(late.mean()),
@@ -396,7 +397,7 @@ def decide(regional: dict, paired: dict) -> dict:
     checks = [
         {
             "id": "direction",
-            "label": "Regional mean is lower in 2001-2020",
+            "label": "Regional mean is lower in 2001\u20132020",
             "passed": regional["diff"] < 0,
             "detail": f"{regional['diff']:+.1f} in",
         },
@@ -408,13 +409,13 @@ def decide(regional: dict, paired: dict) -> dict:
         },
         {
             "id": "stations",
-            "label": "Median station change negative and >=60% of stations declining",
+            "label": "Median station change is negative and at least 60% of stations declined",
             "passed": paired["median_change"] < 0 and paired["frac_down"] >= 0.60,
             "detail": f"median {paired['median_change']:+.1f} in, {paired['frac_down']*100:.0f}% down",
         },
         {
             "id": "trend",
-            "label": "Whole-record trend negative at p < 0.05",
+            "label": "Whole-record trend is negative at p below 0.05",
             "passed": regional["sen_slope_per_decade"] < 0 and regional["mk_p"] < 0.05,
             "detail": f"{regional['sen_slope_per_decade']:+.2f} in/decade, p={regional['mk_p']:.3f}",
         },
@@ -470,6 +471,9 @@ def main(argv: list[str] | None = None) -> int:
     meta = pd.read_csv(DERIVED / "station_seasons.csv", usecols=["id", "name", "state"])
     meta = meta.drop_duplicates()
 
+    stamp_path = ROOT / "data" / "raw" / "download_stamp.txt"
+    snapshot = stamp_path.read_text().strip() if stamp_path.exists() else "unknown"
+
     results = {
         "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "config": {
@@ -487,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
             "stations_paired": paired["n"],
             "station_seasons_usable": int(len(usable)),
             "states": sorted(meta["state"].dropna().unique().tolist()),
+            "downloaded_utc": snapshot,
         },
         "decision": decision,
         "paired": paired,

@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Was there less snow in New England? — 1941–2020</title>
+<meta name="description" content="An analysis of 67 GHCN-Daily stations testing whether New England snowfall declined between 1941–2000 and 2001–2020.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero wrap">
+  <p class="hero__eyebrow">
+    <span>Computing fundamentals</span>
+    <span>GHCN-Daily</span>
+    <span>{{N_STATIONS_DL}} stations</span>
+    <span>1941&ndash;2020</span>
+  </p>
+
+  <h1>Was there less snow in New England?</h1>
+  <p class="lede">A family claim, tested against eighty winters of station records from the
+  Global Historical Climatology Network.</p>
+
+  <div class="verdict">
+    <div class="verdict__head">
+      <span class="verdict__label">Answer</span>
+      <span class="verdict__word">{{VERDICT_WORD}}</span>
+    </div>
+    <p>{{VERDICT_TEXT}}</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat stat--accent">
+      <div class="stat__value">{{DIFF_SIGNED}} <small>in</small></div>
+      <div class="stat__label">Change in mean seasonal snowfall,<br>2001&ndash;2020 vs 1941&ndash;2000</div>
+    </div>
+    <div class="stat">
+      <div class="stat__value">{{N_UP}} <small>of {{N_PAIRED}}</small></div>
+      <div class="stat__label">Stations that were snowier<br>in the recent period</div>
+    </div>
+    <div class="stat">
+      <div class="stat__value">{{SLOPE}} <small>in/decade</small></div>
+      <div class="stat__label">Whole-record trend, 1941&ndash;2020<br>(Mann&ndash;Kendall p = {{MK_P}})</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================================================== 1 -->
+<section class="wrap" id="claim">
+  <div class="measure">
+    <span class="kicker">01 &middot; The claim</span>
+    <h2>What my uncle actually said</h2>
+
+    <p>My uncle was born in 1939 and died in 2024. He lived in New England for most of his
+    life, and he complained more than once that there was less snow than there used to be.</p>
+
+    <p>Taken seriously, that is a claim about two fixed windows of time. The last six decades
+    of the twentieth century run from the winter of 1940/41 to the winter of 1999/2000. The
+    first two decades of the twenty-first run from 2000/01 to 2019/20. He is saying the second
+    window had less snow than the first.</p>
+
+    <p>This report tests that, station by station, on the only public dataset that actually
+    measures snowfall through the whole period: the daily subset of the Global Historical
+    Climatology Network, GHCN-Daily, maintained by NOAA's National Centers for Environmental
+    Information.</p>
+  </div>
+</section>
+
+<!-- ============================================================== 2 -->
+<section class="wrap" id="answer">
+  <div class="measure">
+    <span class="kicker">02 &middot; The answer</span>
+    <h2>No. The snow did not decline.</h2>
+
+    <p>Combining the {{N_STATIONS_REGIONAL}} New England stations with a solid 1941&ndash;2000 baseline into a single regional index,
+    seasonal snowfall averaged <strong>{{EARLY_LEVEL}} inches</strong> per winter in
+    1941&ndash;2000 and <strong>{{LATE_LEVEL}} inches</strong> in 2001&ndash;2020. That is a
+    change of {{DIFF_SIGNED}} inches, in the opposite direction to the complaint.</p>
+
+    <p>More importantly, the uncertainty is bigger than the effect. A 95% confidence interval
+    for that change runs from <strong>{{CI_LOW}} to {{CI_HIGH}} inches</strong>. It includes
+    zero comfortably, and it also includes any decline smaller than about four inches. The
+    data do not support "less snow"; they support "no measurable change".</p>
+
+    <p>Because a verdict of "no" is easy to reach for the wrong reasons, the decision rule was
+    fixed before the data were analysed. A "yes" required all four of the following to hold:</p>
+
+    <ol class="rule-list">
+      {{RULES}}
+    </ol>
+
+    <p>{{RULES_SUMMARY}} The direction of the change is positive,
+    the trend is indistinguishable from flat, and a large majority of individual stations gained
+    snow rather than lost it.</p>
+  </div>
+
+  <figure>
+    <img src="figures/01_regional.png" alt="Line chart of New England regional seasonal snowfall from 1941 to 2020, showing annual values scattered around 40 to 110 inches, a five-season average line, and dashed period means at 67.5 and 69.9 inches.">
+    <figcaption><b>Figure 1.</b> The regional snowfall index, 1941&ndash;2020. Each grey dot is
+    one winter, built from the average of {{MIN_STATIONS}}&ndash;{{MAX_STATIONS}} station records
+    that reported that season; the blue line is a five-season average. The two dashed lines are
+    the period means, which differ by {{DIFF_ABS}} inches &mdash; far less than the distance
+    between a good winter and a bad one.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================== 3 -->
+<section class="wrap" id="noise">
+  <div class="measure">
+    <span class="kicker">03 &middot; The core problem</span>
+    <h2>Twenty winters is a small sample of a very noisy quantity</h2>
+
+    <p>Seasonal snowfall in New England has a standard deviation of about
+    <strong>{{EARLY_SD}} inches</strong>. That is the key number in this entire report, and it
+    is why the argument cannot be settled by eye.</p>
+
+    <p>When a quantity varies that much from winter to winter, an average over twenty winters
+    still carries a standard error of roughly <strong>{{LATE_SE}} inches</strong>. A real
+    difference smaller than about twice that &mdash; say, four inches &mdash; is invisible at
+    this sample size. Two decades is not a climate; it is a handful of lucky and unlucky winters.</p>
+
+    <div class="callout">
+      <p class="callout__title">The honest version</p>
+      <p>If New England snowfall had fallen by ten inches, this dataset would almost certainly
+      have detected it. If it fell by two or three inches, this dataset could not have detected
+      it &mdash; and neither could my uncle's memory. The claim, as stated, is not measurable
+      with the evidence available.</p>
+    </div>
+
+    <p>This is not a technicality. It is the whole finding. The complaint and the data are both
+    reasonable, and they are talking past each other because the effect being claimed is smaller
+    than the noise floor of the measurement.</p>
+  </div>
+</section>
+
+<!-- ============================================================== 4 -->
+<section class="wrap" id="stations">
+  <div class="measure">
+    <span class="kicker">04 &middot; Station by station</span>
+    <h2>Most stations gained snow, not lost it</h2>
+
+    <p>A regional average can hide as much as it reveals, so the same comparison was run
+    separately at each station that had at least twelve usable seasons in both periods:
+    {{N_PAIRED}} stations in all. Each station was compared only against itself.</p>
+
+    <p><strong>{{N_UP}} stations were snowier</strong> in 2001&ndash;2020 than in 1941&ndash;2000;
+    <strong>{{N_DOWN}} were less snowy</strong>. The median station gained {{MEDIAN_ABS}} inches.
+    The losses are real but scattered: they cluster at a few inland and high-elevation sites,
+    while the gains are spread across the coastal plain and the western valleys.</p>
+
+    <p>One caution about reading individual bars: the biggest single change in the set is over
+    thirty inches. Changes that large at a single station usually mean the station moved, the
+    observer changed, or the measurement method changed &mdash; not that the local climate shifted
+    that far. This is why the report leans on the regional index and the median rather than on
+    any one station.</p>
+  </div>
+
+  <figure>
+    <img src="figures/02_stations.png" alt="Horizontal bar chart of snowfall change for 59 stations, sorted from most negative to most positive, with 42 positive and 17 negative; alongside a histogram of the changes centred slightly above zero.">
+    <figcaption><b>Figure 2.</b> Each station's own before-and-after. Blue bars are stations
+    that gained snow, red bars are stations that lost it. The right-hand panel shows the same
+    changes as a distribution: it sits slightly to the right of zero, and it is wide.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================== 5 -->
+<section class="wrap" id="decades">
+  <div class="measure">
+    <span class="kicker">05 &middot; Decade by decade</span>
+    <h2>Decades move more than the periods do</h2>
+
+    <p>If the climate were steadily losing snow, the decade averages should drift downward.
+    They do not. They swing: the 1960s and 1970s were well above the long-run baseline, the
+    1980s and 1990s were below it, and the 2000s came back to roughly average.</p>
+
+    <p>The 1980s sit about eleven inches below the baseline and the 1970s about nine inches
+    above it. Either of those decade-to-decade moves is four times larger than the entire
+    difference between the two study periods. Any narrative built on two particular decades
+    &mdash; including a nostalgic one &mdash; is mostly picking out the weather of a childhood.</p>
+  </div>
+
+  <figure>
+    <img src="figures/03_decades.png" alt="Dot and whisker plot of decadal mean snowfall anomaly, oscillating between minus eleven and plus nine inches, with confidence intervals spanning roughly twenty inches.">
+    <figcaption><b>Figure 3.</b> Decadal means, with 95% confidence intervals. The shaded band
+    is the {{DIFF_ABS}} inch difference between the two study periods; the decade-to-decade
+    swings are far larger.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================== 6 -->
+<section class="wrap" id="robustness">
+  <div class="measure">
+    <span class="kicker">06 &middot; Robustness</span>
+    <h2>The answer does not depend on my choices</h2>
+
+    <p>Every analysis of this kind involves judgement calls: which months count as winter, and
+    how complete a station's year has to be before it is used. Both were varied deliberately to
+    see whether the conclusion survives.</p>
+
+    <p>Three season definitions (July&ndash;June, October&ndash;May, November&ndash;March) were
+    crossed with five coverage thresholds from 50% to 95%, giving {{N_SENS}} separate analyses.
+    All {{N_SENS}} produced a positive point estimate for the change. None produced a trend
+    significant at the 5% level; the smallest p-value was {{SENS_MIN_P}}.</p>
+
+    <p>This is the strongest evidence in the report, because it addresses the obvious objection
+    that the result was engineered by choosing a convenient window.</p>
+  </div>
+
+  <figure>
+    <img src="figures/04_sensitivity.png" alt="Fifteen point estimates with confidence intervals, grouped by three season definitions, all centred slightly above zero and every interval crossing zero.">
+    <figcaption><b>Figure 4.</b> {{N_SENS}} analyses: three season definitions crossed with five
+    minimum-coverage thresholds. Every point estimate sits above zero, and every confidence
+    interval crosses it.</figcaption>
+  </figure>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Season window</th>
+          <th class="num">Coverage</th>
+          <th class="num">Stations</th>
+          <th class="num">Change (in)</th>
+          <th class="num">95% CI</th>
+          <th class="num">Trend (in/dec)</th>
+          <th class="num">p</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{SENS_TABLE}}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================== 7 -->
+<section class="wrap" id="extremes">
+  <div class="measure">
+    <span class="kicker">07 &middot; What people remember</span>
+    <h2>Big storms and snow on the ground</h2>
+
+    <p>Total seasonal snowfall is not the same as what a person notices. Two other measures
+    matter: how often heavy snow fell, and how many days had snow lying on the ground.</p>
+
+    <p>Both went <em>up</em>. Days with at least twelve inches of snow in a single day rose from
+    {{DAYS12_E}} to {{DAYS12_L}} per season. Days with at least six inches rose from
+    {{DAYS6_E}} to {{DAYS6_L}}. Days with any snow cover rose from {{COVER_E}} to {{COVER_L}},
+    a change of {{COVER_DIFF}} days per winter, with a confidence interval of
+    {{COVER_CI}}.</p>
+
+    <p>These counts are small and sensitive to how snow depth is measured, so they should not be
+    over-read. But they point the same way as everything else &mdash; and they suggest that a
+    memory of fewer snowy days is not supported either.</p>
+  </div>
+
+  <figure>
+    <img src="figures/05_extremes.png" alt="Three paired bar charts: days with six or more inches, days with twelve or more inches, and days with snow on the ground, each showing higher values in 2001 to 2020.">
+    <figcaption><b>Figure 5.</b> Heavy-snow days and snow-cover days, restricted to seasons with
+    at least 95% data coverage so that missing days cannot masquerade as a decline.
+    Figures below each panel are the change and its 95% confidence interval.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================== 8 -->
+<section class="wrap" id="mechanism">
+  <div class="measure">
+    <span class="kicker">08 &middot; Why</span>
+    <h2>Warmer and wetter, but not less snowy</h2>
+
+    <p>Snowfall is a function of two things: how much precipitation falls, and how cold it is
+    when it arrives. Both have moved in New England, in opposite directions for snow.</p>
+
+    <p>Seasonal precipitation rose from {{PRECIP_E}} to {{PRECIP_L}} inches, an increase of
+    {{PRECIP_DIFF}} inches, with a confidence interval that excludes zero. Seasonal mean
+    temperature rose from {{TEMP_E}} to {{TEMP_L}} &deg;C.</p>
+
+    <p>The extra warmth did not convert the extra moisture into rain everywhere. It more or
+    less cancelled out: more precipitation arrived, a slightly larger share of it fell as rain
+    or mixed precipitation, and the total snowfall stayed level. That is a coherent physical
+    story, and it is consistent with the flat trend rather than contradicting it.</p>
+
+    <p>It also explains why a warming climate and a flat snowfall record are not in conflict.
+    Winter in New England still gets cold enough to snow; what changes first is the margin.</p>
+  </div>
+
+  <figure>
+    <img src="figures/06_mechanism.png" alt="Two scatter plots: seasonal precipitation rising from about 42 to 47 inches, and seasonal mean temperature rising from about 7.7 to 8.0 degrees Celsius.">
+    <figcaption><b>Figure 6.</b> The two ingredients of snowfall. Both rose &mdash; precipitation
+    clearly, temperature modestly &mdash; while snowfall itself stayed flat.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================== 9 -->
+<section class="wrap" id="artefact">
+  <div class="measure">
+    <span class="kicker">09 &middot; A pattern that looks real</span>
+    <h2>The snowiest places did not really lose the most</h2>
+
+    <p>The stations with the largest losses are also the ones at the highest elevations, which
+    invites a tempting story: perhaps the mountains are losing snow first. The correlation is
+    there &mdash; change against elevation gives r = {{CORR_ELEV}}.</p>
+
+    <p>It is an artefact. A station that started with a high average can only fall, and the
+    late-period mean is a noisy estimate. Once the starting average is held constant, the
+    elevation correlation collapses to r = {{PARTIAL}}. What looked like a physical pattern is
+    <strong>regression to the mean</strong>: the usual behaviour of any noisy quantity compared
+    against its own starting point.</p>
+
+    <p>The lesson is worth stating plainly, because it is easy to fool yourself here: with
+    twenty-season windows, ranking stations by "who lost the most" mostly ranks them by how
+    lucky their early years were.</p>
+  </div>
+</section>
+
+<!-- ============================================================== 10 -->
+<section class="wrap" id="limits">
+  <div class="measure">
+    <span class="kicker">10 &middot; What would change the answer</span>
+    <h2>Limits, and the case for my uncle</h2>
+
+    <p>Three things could overturn or soften this conclusion, and all three are worth stating
+    rather than hiding.</p>
+
+    <h3>1. The data are not homogenised</h3>
+    <p>GHCN-Daily snowfall is raw station data. It is not adjusted for station moves, observer
+    changes, or changes in how snow is measured. A single station's thirty-inch swing is more
+    likely an institutional change than a climate one. This adds uncertainty in both directions,
+    which means the confidence intervals above are, if anything, too narrow.</p>
+
+    <h3>2. A different period could give a different answer</h3>
+    <p>These are two specific windows. A comparison of 1961&ndash;1990 against 1991&ndash;2020,
+    or a trend starting in 1970, would produce different numbers. That is precisely why the
+    pre-registered rule and the robustness sweep matter: they make it harder to pick the window
+    that tells the preferred story.</p>
+
+    <h3>3. "Less snow" is not the same as "less snow where I was standing"</h3>
+    <p>This analysis covers New England as a region. A person's memory is a sample of one place
+    and a handful of memorable winters, and memory weights the extreme years. It is entirely
+    possible that my uncle's town had a run of poor winters while the region as a whole did not.
+    The data cannot settle that, and neither can this report.</p>
+
+    <div class="callout">
+      <p class="callout__title">So was he right?</p>
+      <p>Not in the sense he meant, and not in a way the data can demonstrate. The snow did not
+      decline. But a decline of two or three inches would also have been invisible here &mdash;
+      so the honest answer is that his claim is <em>unsupported</em> rather than
+      <em>disproved</em>. He was probably remembering real winters, and generalising from too
+      small a sample, which is what all of us do.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== 11 -->
+<section class="wrap" id="methods">
+  <div class="measure">
+    <span class="kicker">11 &middot; Methods</span>
+    <h2>How the numbers were produced</h2>
+
+    <p><strong>Data.</strong> GHCN-Daily station files from NOAA NCEI, downloaded
+    {{SNAPSHOT}}. {{N_STATIONS_DL}} stations in Connecticut, Rhode Island, Massachusetts,
+    Vermont, New Hampshire and Maine had snowfall records spanning both study periods. The
+    <code>SNOW</code>, <code>SNWD</code>, <code>PRCP</code>, <code>TMAX</code> and
+    <code>TMIN</code> elements were parsed from the fixed-width <code>.dly</code> format.
+    Values of &minus;9999 were treated as missing, as were values carrying a non-blank GHCN
+    quality flag.</p>
+
+    <p><strong>Seasons.</strong> A snow year runs from 1 July to 30 June and is labelled by the
+    year containing its January, so season 2001 means the winter of 2000/01. This keeps a single
+    storm inside a single season and still catches October and late-April snow.</p>
+
+    <p><strong>Usable seasons.</strong> A station-season counts only if at least
+    {{COVERAGE_PCT}} of its days report snowfall. Missing days are never treated as zero; a
+    season missing a fifth of its days would otherwise look like a dry winter.</p>
+
+    <p><strong>Two comparisons.</strong> The <em>paired</em> comparison keeps stations with at
+    least twelve usable seasons in each period and compares each station against itself. The
+    <em>regional index</em> converts every station-season into an anomaly against that station's
+    own 1941&ndash;2000 mean, then averages across whichever stations reported that season
+    (minimum five). The second is the headline, because it uses far more of the record. The two
+    use slightly different station sets &mdash; {{N_SHARED}} of the {{N_PAIRED}} stations appear
+    in both &mdash; which is why both are reported.</p>
+
+    <p><strong>Uncertainty.</strong> Confidence intervals come from a moving-block bootstrap with
+    three-season blocks and 5,000 resamples, which respects the mild year-to-year correlation in
+    the series (lag-1 autocorrelation {{RHO}}). The paired comparison resamples stations; the
+    regional comparison resamples seasons. They answer different questions, and the report
+    quotes the second.</p>
+
+    <p><strong>Trend.</strong> Sen's slope for the magnitude, Mann&ndash;Kendall for significance.
+    Both are rank-based methods that tolerate the outliers a century of weather records inevitably
+    contains.</p>
+
+    <p><strong>Decision rule.</strong> Fixed before analysis, and reported with its four legs so
+    that the reasoning can be checked rather than trusted.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Station</th>
+          <th>State</th>
+          <th class="num">Elev (m)</th>
+          <th class="num">1941&ndash;2000 (in)</th>
+          <th class="num">2001&ndash;2020 (in)</th>
+          <th class="num">Change (in)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{STATION_TABLE}}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================== 12 -->
+<section class="wrap" id="reproduce">
+  <div class="measure">
+    <span class="kicker">12 &middot; Reproduce it</span>
+    <h2>Running the analysis</h2>
+
+    <p>Every number and figure on this page is generated by four scripts. No data files are
+    stored in the repository; the first step downloads them, and everything lands in a directory
+    that git ignores.</p>
+
+<pre><code>python3 src/fetch_data.py     # download 67 New England station files
+python3 src/parse_ghcn.py     # parse .dly files into per-season aggregates
+python3 src/analyze.py        # statistics and decision rule -&gt; build/results.json
+python3 src/figures.py        # six figures -&gt; build/figures/
+python3 src/build_site.py     # this page -&gt; build/index.html</code></pre>
+
+    <p>The build directory is published to GitHub Pages by a workflow, so neither the raw data
+    nor the generated figures are ever committed. Re-running the pipeline against a newer GHCN
+    snapshot may change the last digit or two of the figures above; the conclusion is far less
+    sensitive than that.</p>
+
+    <p class="meta">Data: NOAA National Centers for Environmental Information, GHCN-Daily
+    (public domain). Analysis and page generated {{GENERATED}}. Source code:
+    <a href="{{REPO_URL}}">{{REPO_URL}}</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap measure">
+    <p class="meta">This page is a static build. It contains no tracking, no scripts and no
+    external resources.</p>
+  </div>
+</footer>
+
+</body>
+</html>

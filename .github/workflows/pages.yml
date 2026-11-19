@@ -1,0 +1,76 @@
+name: Build and deploy report
+
+# Rebuilds the whole analysis from source on every push, then publishes the
+# generated site. Nothing built here is committed to the repository: the raw
+# GHCN-Daily files and the figures exist only inside the workflow run.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download GHCN-Daily station data
+        run: python src/fetch_data.py
+
+      - name: Parse daily records into season aggregates
+        run: python src/parse_ghcn.py
+
+      - name: Run the analysis
+        run: python src/analyze.py
+
+      - name: Draw figures
+        run: python src/figures.py
+
+      - name: Build the site
+        run: python src/build_site.py --repo-url "${{ github.server_url }}/${{ github.repository }}"
+
+      # A guard, not decoration: the repository must never publish raw data.
+      - name: Check the artifact contains no data files
+        run: |
+          found=$(find build \( -name '*.dly' -o -name '*.csv' -o -name '*.parquet' \) -print)
+          if [ -n "$found" ]; then
+            echo "Refusing to publish raw data:"
+            echo "$found"
+            exit 1
+          fi
+          echo "Artifact clean."
+          du -sh build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

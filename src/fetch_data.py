@@ -27,6 +27,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from pathlib import Path
 
 BASE_URL = "https://www.ncei.noaa.gov/pub/data/ghcn/daily"
@@ -260,6 +261,12 @@ def main(argv: list[str] | None = None) -> int:
     total_mb = sum(p.stat().st_size for p in DLY.glob("*.dly")) / 1e6
     print(f"      data/raw/dly: {total_mb:,.1f} MB across {len(list(DLY.glob('*.dly')))} files")
     print(f"      manifest: {manifest.relative_to(ROOT)}")
+
+    # Record the snapshot: GHCN-Daily is updated daily, so the report must be
+    # able to say which vintage of the data it describes.
+    stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    (RAW / "download_stamp.txt").write_text(stamp + "\n")
+    print(f"      snapshot: {stamp}")
 
     if failures:
         print(f"\n{len(failures)} station(s) failed:", file=sys.stderr)
